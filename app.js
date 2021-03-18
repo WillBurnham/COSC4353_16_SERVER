@@ -23,6 +23,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
+app.listen(process.env.PORT || "9000", () => {
+  console.log(`Server is running on port: ${process.env.PORT || "9000"}`);
+});
+
 app.use(cors());
 
 // catch 404 and forward to error handler
@@ -41,5 +45,4 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-app.listen(9000);
 module.exports = app;
