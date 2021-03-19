@@ -4,10 +4,13 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-var signUpRouter = require('./routes/signUp');
 var cors = require("cors");
 
 var app = express();
+app.use(cors());
+
+var signUpRouter = require('./routes/signUp');
+var fuelQuoteFormRouter = require('./routes/fuel-quote-form');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -20,12 +23,16 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/signUp', signUpRouter);
+app.use('/fuel-quote-form', fuelQuoteFormRouter);
 
 app.listen(process.env.PORT || "9000", () => {
   console.log(`Server is running on port: ${process.env.PORT || "9000"}`);
 });
 
-app.use(cors());
+// app.all('*', (req, res, next) => {
+//   res.header("Access-Control-Allow-Origin", "https://localhost:3000");
+//   next();
+// });
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
