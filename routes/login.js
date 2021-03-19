@@ -1,6 +1,7 @@
 var express = require("express");
 var router = express.Router();
 var bcrypt = require("bcrypt");
+var { body, validationResult } = require("express-validator");
 
 //Login routes.
 
@@ -21,30 +22,42 @@ let users = [
 ];
 
 //Login api
-router.post("/", async (req, res, next) => {
-  //validate on incoming data.
-
-  //Check if user already exists and match the password.
-  console.log(req.body);
-  try {
-    const user = users.find((user) => user.email == req.body.email);
-    if (user == null) {
-      console.log("Account does not exist");
-      throw Error("Account Does not exist");
+router.post(
+  "/",
+  [
+    body("email").isEmail().isLength({ max: 25 }),
+    body("password").isLength({ min: 4 }),
+  ],
+  async (req, res, next) => {
+    //validate on incoming data.
+    const err = validationResult(req);
+    console.log(err);
+    if (!err.isEmpty()) {
+      return res.status(400).json({ errors: err.array() });
     }
+    //Check if user already exists and match the password.
     try {
-      if (user.password == req.body.password) {
-        res.status(200).send("Successful");
-      } else {
-        console.log("password fails!");
-        throw Error("password fails!");
+      const user = users.find((user) => user.email == req.body.email);
+      if (user == null) {
+        console.log("Account does not exist");
+        throw Error("Account Does not exist");
       }
-    } catch {
-      res.status(500).send();
+      try {
+        if (user.password == req.body.password) {
+          res.status(200).send("Successful");
+        } else {
+          // console.log("password fails!");
+          throw Error("password fails!");
+        }
+      } catch (err) {
+        // console.log(err);
+        return res.status(400).json({ error: err.message });
+      }
+    } catch (err) {
+      // console.log(err);
+      return res.status(400).json({ error: err.message });
     }
-  } catch (err) {
-    return res.status(400).send(err.message);
   }
-});
+);
 
 module.exports = router;
