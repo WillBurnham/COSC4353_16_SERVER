@@ -1,5 +1,4 @@
 var express = require('express');
-const { ViewModuleSharp } = require('@material-ui/icons');
 var router = express.Router();
 
 router.post('/', (req, res, next) => {
