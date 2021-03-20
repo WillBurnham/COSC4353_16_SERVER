@@ -2,21 +2,22 @@ var express = require("express");
 var router = express.Router();
 var bcrypt = require("bcrypt");
 var { body, validationResult } = require("express-validator");
+const jwt = require("jsonwebtoken");
 
 //Login routes.
 
 //Dummy data,
 let users = [
   {
-    email: "test1@test1.com",
+    email: "user1@test1.com",
     password: "pass1",
   },
   {
-    email: "test2@test2.com",
+    email: "user2@test2.com",
     password: "pass2",
   },
   {
-    email: "test3@test3.com",
+    email: "user3@test3.com",
     password: "pass3",
   },
 ];
@@ -44,7 +45,8 @@ router.post(
       }
       try {
         if (user.password == req.body.password) {
-          res.status(200).send("Successful");
+          const accessToken = jwt.sign({ email: req.body.email }, "shhhh");
+          res.status(200).json({ accessToken: accessToken });
         } else {
           // console.log("password fails!");
           throw Error("password fails!");

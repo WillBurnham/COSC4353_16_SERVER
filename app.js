@@ -6,9 +6,12 @@ var logger = require("morgan");
 
 var loginRouter = require("./routes/login");
 var signUpRouter = require("./routes/signUp");
+var profileRouter = require("./routes/profile");
 var cors = require("cors");
+const jwt = require("jsonwebtoken");
 
 var app = express();
+app.use(cors());
 
 // view engine setup
 // app.set("views", path.join(__dirname, "views"));
@@ -22,12 +25,11 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/login", loginRouter);
 app.use("/signUp", signUpRouter);
+app.use("/profile", profileRouter);
 
 app.listen(process.env.PORT || "9000", () => {
   console.log(`Server is running on port: ${process.env.PORT || "9000"}`);
 });
-
-app.use(cors());
 
 // catch 404 and forward to error handler
 // app.use(function (req, res, next) {
