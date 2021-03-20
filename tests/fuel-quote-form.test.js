@@ -23,3 +23,18 @@ describe('POST /fuel-quote-form', function() {
         });
     });
 });
+
+describe('GET /fuel-quote-form', function() {
+  it('responds with json', function(done) {
+    request(app)
+      .get('/')
+      .expect(200)
+      .expect('Content-Type', /json/)
+      .end(function(err, res) {
+        if (err) return done(err);
+        return done();
+      });
+  });
+});
+
+
