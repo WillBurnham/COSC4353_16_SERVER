@@ -14,6 +14,7 @@ const authenticateToken = (req, res, next) => {
       console.log("Authentication failed: ", err);
       return res.sendStatus(403);
     } else {
+      console.log("authentication passed");
       req.user = user;
       next();
     }
