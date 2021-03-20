@@ -39,7 +39,6 @@ router.post(
   "/",
   [
     authenticateToken,
-    body("email").isEmail(),
     body("full_name").notEmpty(),
     body("address_one").notEmpty(),
     body("state").notEmpty(),
@@ -65,6 +64,7 @@ router.post(
       zipcode: req.body.zipcoe,
     };
     profile.push(profile);
+    console.log("sucessful");
     return res.send(200).json(profile);
   }
 );

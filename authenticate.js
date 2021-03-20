@@ -1,7 +1,6 @@
 const jwt = require("jsonwebtoken");
 
 const authenticateToken = (req, res, next) => {
-  console.log("insdie authenticate");
   const authHeader = req.headers["authorization"];
   console.log(authHeader);
   const token = authHeader && authHeader.split(" ")[1];
