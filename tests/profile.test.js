@@ -43,4 +43,18 @@ describe("POST /profile", function () {
         return done();
       });
   });
+
+  it("responds with authentication failed", function (done) {
+    request(app)
+      .get("/")
+      .auth(
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InVzZXIxQHRlc3QxLmNvbSIsImlhdCI6MTYxNjIwNTEwNH0.uBnwjRdPdaT1p-xmJVfwSfe2HAF4NYvnnv6YgIaN0203435",
+        { type: "bearer" }
+      )
+      .expect(403)
+      .end(function (err, res) {
+        if (err) return done(err);
+        return done();
+      });
+  });
 });

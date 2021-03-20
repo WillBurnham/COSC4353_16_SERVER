@@ -23,4 +23,34 @@ describe("POST /login", function () {
         return done();
       });
   });
+
+  it("responds with account does not exist", function (done) {
+    request(app)
+      .post("/")
+      .send({
+        email: "user9@test9.com",
+        password: "pass1",
+      })
+      .expect(400)
+      .expect("Content-Type", /json/)
+      .end(function (err, res) {
+        if (err) return done(err);
+        return done();
+      });
+  });
+
+  it("responds with password fails!", function (done) {
+    request(app)
+      .post("/")
+      .send({
+        email: "user1@test1.com",
+        password: "pass2",
+      })
+      .expect(400)
+      .expect("Content-Type", /json/)
+      .end(function (err, res) {
+        if (err) return done(err);
+        return done();
+      });
+  });
 });
