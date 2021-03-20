@@ -13,8 +13,8 @@ describe('POST /login', function() {
       request(app)
         .post('/')
         .send({
-            "email": "test1@test1.com",
-            "password": "pass1"
+            email: "user1@test1.com",
+            password: "pass1"
         })
         .expect(200)
         .expect('Content-Type', /json/)

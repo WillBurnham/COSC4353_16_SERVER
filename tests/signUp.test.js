@@ -13,7 +13,7 @@ describe('POST /signUp', function() {
       request(app)
         .post('/')
         .send({
-            email: "user1@test1.com",
+            email: "user9@test1.com",
             password: "pass1"
         })
         .expect(200)
