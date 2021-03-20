@@ -10,7 +10,7 @@ router.post('/', (req, res, next) => {
         suggestedPrice: '1000.00',
         amountDue: '1000.00'
     };
-    res.send(response);
+    res.json(response);
 });
 
 module.exports = router;
