@@ -23,4 +23,34 @@ describe("POST /signUp", function () {
         return done();
       });
   });
+
+  it("responds with 400 - Missing/invalid data", function (done) {
+    request(app)
+      .post("/")
+      .send({
+        email: "user4",
+        password: "pass4",
+      })
+      .expect(400)
+      .expect("Content-Type", /json/)
+      .end(function (err, res) {
+        if (err) return done(err);
+        return done();
+      });
+  });
+
+  it("responds with 400 - Account Already exists", function (done) {
+    request(app)
+      .post("/")
+      .send({
+        email: "user1@test1.com",
+        password: "pass1",
+      })
+      .expect(400)
+      .expect("Content-Type", /json/)
+      .end(function (err, res) {
+        if (err) return done(err);
+        return done();
+      });
+  });
 });

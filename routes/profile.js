@@ -58,12 +58,16 @@ router.post(
       id: Date.now().toString(),
       full_name: req.body.full_name,
       address_one: req.body.address_one,
-      address_two: req.body.address_two ? req.body.address_two : null,
       city: req.body.city,
       state: req.body.state,
       zipcode: req.body.zipcoe,
     };
-    profile.push(profile);
+
+    if ("address_two" in req.body) {
+      profile["address_two"] = req.body.address_one;
+    }
+
+    profiles.push(profile);
     console.log("sucessful");
     return res.send(200).json(profile);
   }

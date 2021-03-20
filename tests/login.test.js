@@ -53,4 +53,19 @@ describe("POST /login", function () {
         return done();
       });
   });
+
+  it("responds with 400 - Invalid data!", function (done) {
+    request(app)
+      .post("/")
+      .send({
+        email: "user1",
+        password: "pass2",
+      })
+      .expect(400)
+      .expect("Content-Type", /json/)
+      .end(function (err, res) {
+        if (err) return done(err);
+        return done();
+      });
+  });
 });
