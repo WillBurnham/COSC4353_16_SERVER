@@ -1,5 +1,0 @@
-GET http://localhost:9000/signUp
-
-###
-
-POST http://localhost:9000/login
