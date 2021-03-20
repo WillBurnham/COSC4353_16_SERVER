@@ -10,9 +10,9 @@ var app = express();
 app.use(cors());
 
 var loginRouter = require("./routes/login");
-var signUpRouter = require("./routes/signUp");
-var fuelQuoteFormRouter = require("./routes/fuel-quote-form");
-var profileRouter = require("./routes/profile");
+var signUpRouter = require('./routes/signUp');
+var fuelQuoteFormRouter = require('./routes/fuel-quote-form');
+var profileRouter = require('./routes/profile');
 
 //view engine setup
 app.set("views", path.join(__dirname, "views"));
