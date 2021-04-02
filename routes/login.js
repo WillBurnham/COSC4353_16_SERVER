@@ -38,6 +38,7 @@ router.post(
     }
     //Check if user already exists and match the password.
     try {
+      //Get matching user from database
       const user = users.find((user) => user.email == req.body.email);
       if (user == null) {
         console.log("Account does not exist");
