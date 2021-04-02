@@ -36,45 +36,40 @@ router.post(
     if (!err.isEmpty()) {
       return res.status(400).json({ errors: err.array() });
     }
-    try {
-      const email = req.body.email;
-      const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
-      let user = [];
-      //Get users in database
-      db.query(
-        "SELECT * FROM Users WHERE email = ? ",
-        [email],
-        (err, results) => {
-          if (err) throw err;
-          user = JSON.parse(JSON.stringify(results));
-          console.log(user);
+    const email = req.body.email;
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+    let user = [];
+    //Get users in database
+    db.query(
+      "SELECT * FROM Users WHERE email = ? ",
+      [email],
+      (err, results) => {
+        if (err) throw err;
+        user = JSON.parse(JSON.stringify(results));
+        console.log(user);
+        if (user.length > 0) {
+          console.log("lenght is 1");
+          return res.status(400).json({ error: "Account already exists" });
+        } else {
+          let new_user = {
+            email: req.body.email,
+            password: hashedPassword,
+          };
+          //Crete user in database
+          db.query("INSERT INTO Users SET ? ", new_user, (err, results) => {
+            if (err) throw err;
+            user = JSON.parse(JSON.stringify(results));
+          });
+          const accessToken = jwt.sign(
+            { email: req.body.email, password: hashedPassword },
+            "shhhh"
+          );
+          return res.status(200).json({ accessToken: accessToken });
         }
-      );
-
-      //user existst ==> can't create account
-      if (user.length > 0) {
-        return res.status(400).json({ errors: "Account already exists" });
-      } else {
-        let new_user = {
-          email: req.body.email,
-          pswd: hashedPassword,
-        };
-        //Crete user in database
-        db.query("INSERT INTO Users SET ? ", new_user, (err, results) => {
-          if (err) throw err;
-          user = JSON.parse(JSON.stringify(results));
-        });
-        const accessToken = jwt.sign(
-          { email: req.body.email, password: hashedPassword },
-          "shhhh"
-        );
-        return res.status(200).json({ accessToken: accessToken });
       }
-    } catch (err) {
-      console.log(err);
-      return res.status(500).send();
-    }
+    );
   }
 );
 
