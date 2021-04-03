@@ -94,11 +94,8 @@ router.get("/", authenticateToken, (req, res, next) => {
     "SELECT * FROM Users WHERE email = ? ",
     [req.user.email],
     (err, results) => {
-      // console.log(results);
       user = JSON.parse(JSON.stringify(results))[0];
       // Get profile based on user
-      // console.log(user);
-
       db.query(
         "SELECT * FROM profiles WHERE user_id = ? ",
         [user.user_id],

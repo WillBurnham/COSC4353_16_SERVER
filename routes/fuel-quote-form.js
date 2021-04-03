@@ -2,6 +2,7 @@ var express = require("express");
 var router = express.Router();
 var { body, validationResult } = require("express-validator");
 const authenticateToken = require("../authenticate");
+var db = require("../database");
 
 let fuel_quotes = [
   {
@@ -47,41 +48,107 @@ let profiles = [
     zipcode: "77024",
   },
 ];
-router.post("/", [authenticateToken], (req, res, next) => {
-  //Validate Data
+router.post("/", [authenticateToken], async (req, res, next) => {
+  //Get user based on email,
+  db.query(
+    "SELECT * FROM Users WHERE email = ? ",
+    [req.user.email],
+    (err, results) => {
+      user = JSON.parse(JSON.stringify(results))[0];
+      console.log("User: ", user);
+      db.query(
+        "SELECT * FROM profiles WHERE user_id = ? ",
+        [user.user_id],
+        (err, results) => {
+          profile = JSON.parse(JSON.stringify(results))[0];
+          console.log(profile);
 
-  prof = profiles.filter((profile) => profile.email_fk == req.user.email);
-  if (prof.length == 0) {
-    //User does not exist.
-    return res.sendStatus(404);
-  } else {
-    let create_quote = {
-      email_fk: prof[0].email_fk,
-      gallons: 10000,
-      date: Date.now().toString(),
-      amount_due: 10000,
-      suggested_price: 10000,
-    };
-    fuel_quotes.push(create_quote);
-    return res.send(200).json(create_quote);
-  }
+          //Calcuate Suggested Price and Amount Due.
+          let suggested_price = 0;
+          let current_price = 1.5;
+          let amount_due = 0;
+          let rate_history_factor = 0;
+          let gallons_factor = 0.2;
+          let profit_factor = 0.1;
+          let location_factor = profiles.state == "TX" ? 0.2 : 0.4;
+          //Get existing fuel_quotes.
+          db.query(
+            "SELECT * FROM fuel_quotes WHERE user_id = ?",
+            [user.user_id],
+            (err, results) => {
+              if (err) throw err;
+              console.log("Existing quotes: ", results);
+              if (JSON.parse(JSON.stringify(results)).length > 0) {
+                rate_history_factor = 0.1;
+              }
+              gallons_factor = req.body.gallons > 1000 ? 0.2 : 0.3;
+              let margin =
+                location_factor -
+                rate_history_factor +
+                gallons_factor +
+                profit_factor;
+              suggested_price = (current_price + margin).toFixed(2);
+              amount_due = (req.body.gallons * suggested_price).toFixed(2);
+
+              let fuel_quote = {
+                user_id: user.user_id,
+                gallons: req.body.gallons,
+                suggested_price: suggested_price,
+                delivery_date: req.body.date,
+                total_amount: amount_due,
+              };
+              //Insert quote into table.
+              db.query(
+                "INSERT INTO fuel_quotes SET ? ",
+                fuel_quote,
+                (err, results) => {
+                  if (err) throw err;
+                  console.log(results);
+                  res.send(200);
+                }
+              );
+            }
+          );
+        }
+      );
+    }
+  );
 });
 
 router.get("/", authenticateToken, (req, res, next) => {
-  prof = profiles.filter((profile) => profile.email_fk == req.user.email);
-  if (prof.length == 0) {
-    return res.sendStatus(404);
-  } else {
-    all_quotes = fuel_quotes.filter(
-      (quote) => quote.email_fk == prof[0].email_fk
-    );
-    all_quotes.forEach((quote) => (quote["address"] = prof[0].address_one));
-    console.log(all_quotes);
-    if (all_quotes.length == 0) {
-      return res.sendStatus(404);
+  db.query(
+    "SELECT * FROM Users WHERE email = ? ",
+    [req.user.email],
+    (err, results) => {
+      user = JSON.parse(JSON.stringify(results))[0];
+      console.log("User: ", user);
+      db.query(
+        "SELECT * FROM profiles WHERE user_id = ? ",
+        [user.user_id],
+        (err, results) => {
+          profile = JSON.parse(JSON.stringify(results))[0];
+          console.log(profile);
+
+          //Get existing fuel_quotes.
+          db.query(
+            "SELECT * FROM fuel_quotes WHERE user_id = ?",
+            [user.user_id],
+            (err, results) => {
+              if (err) throw err;
+              console.log("Existing quotes: ", results);
+              let all_quotes = JSON.parse(JSON.stringify(results));
+              all_quotes = all_quotes.map((quote) => {
+                return {
+                  ...quote,
+                  "Address ": `${profile.address_one}, ${profile.address_two}`,
+                };
+              });
+            }
+          );
+        }
+      );
     }
-    return res.send(200).json(all_quotes);
-  }
+  );
 });
 
 module.exports = router;
