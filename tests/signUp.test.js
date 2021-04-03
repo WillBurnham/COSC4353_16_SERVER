@@ -8,13 +8,17 @@ app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: false }));
 app.use("/", signUp);
 
+let rand = () => {
+  return Math.floor(Math.random() * 100000);
+}
+
 describe("POST /signUp", function () {
   it("responds with json", function (done) {
     request(app)
       .post("/")
       .send({
-        email: "user4@test4.com",
-        password: "pass4",
+        email: rand().toString() + "@test.com",
+        password: "password1",
       })
       .expect(200)
       .expect("Content-Type", /json/)
@@ -43,8 +47,8 @@ describe("POST /signUp", function () {
     request(app)
       .post("/")
       .send({
-        email: "user1@test1.com",
-        password: "pass1",
+        email: "testuser123@test.com",
+        password: "password1",
       })
       .expect(400)
       .expect("Content-Type", /json/)

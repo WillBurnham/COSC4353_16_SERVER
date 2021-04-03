@@ -78,7 +78,7 @@ router.post(
           db.query("INSERT INTO profiles SET ? ", profile, (err, results) => {
             if (err) throw err;
             console.log(results);
-            return res.sendStatus(200).json(profile);
+            return res.send(profile);
           });
         }
       );
@@ -108,7 +108,7 @@ router.get("/", authenticateToken, (req, res, next) => {
               profile = rows[0];
               return res.send(profile);
             } else {
-              return res.sendStatus(400);
+              return res.sendStatus(404);
             }
           }
         }
