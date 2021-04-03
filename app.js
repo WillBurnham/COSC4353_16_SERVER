@@ -10,9 +10,9 @@ var app = express();
 app.use(cors());
 
 var loginRouter = require("./routes/login");
-var signUpRouter = require('./routes/signUp');
-var fuelQuoteFormRouter = require('./routes/fuel-quote-form');
-var profileRouter = require('./routes/profile');
+var signUpRouter = require("./routes/signUp");
+var fuelQuoteFormRouter = require("./routes/fuel-quote-form");
+var profileRouter = require("./routes/profile");
 
 //view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -25,7 +25,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/login", loginRouter);
-app.use("/fuel-quote-form", fuelQuoteFormRouter);
+app.use("/fuel_quote", fuelQuoteFormRouter);
 app.use("/signUp", signUpRouter);
 app.use("/profile", profileRouter);
 

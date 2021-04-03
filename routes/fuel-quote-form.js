@@ -115,19 +115,19 @@ router.post("/", [authenticateToken], async (req, res, next) => {
   );
 });
 
-router.get("/", authenticateToken, (req, res, next) => {
+router.get("/all_quotes", authenticateToken, (req, res, next) => {
   db.query(
     "SELECT * FROM Users WHERE email = ? ",
     [req.user.email],
     (err, results) => {
       user = JSON.parse(JSON.stringify(results))[0];
-      console.log("User: ", user);
+      // console.log("User: ", user);
       db.query(
         "SELECT * FROM profiles WHERE user_id = ? ",
         [user.user_id],
         (err, results) => {
           profile = JSON.parse(JSON.stringify(results))[0];
-          console.log(profile);
+          // console.log(profile);
 
           //Get existing fuel_quotes.
           db.query(
@@ -135,14 +135,16 @@ router.get("/", authenticateToken, (req, res, next) => {
             [user.user_id],
             (err, results) => {
               if (err) throw err;
-              console.log("Existing quotes: ", results);
+              // console.log("Existing quotes: ", results);
               let all_quotes = JSON.parse(JSON.stringify(results));
               all_quotes = all_quotes.map((quote) => {
                 return {
                   ...quote,
-                  "Address ": `${profile.address_one}, ${profile.address_two}`,
+                  address: `${profile.address_one}, ${profile.address_two}, ${profile.city} ${profile.state} ${profile.zip_code}`,
                 };
               });
+              console.log(all_quotes);
+              return res.send(all_quotes);
             }
           );
         }
