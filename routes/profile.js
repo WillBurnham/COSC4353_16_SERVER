@@ -3,6 +3,7 @@ var router = express.Router();
 var bcrypt = require("bcrypt");
 var { body, validationResult } = require("express-validator");
 const authenticateToken = require("../authenticate");
+const db = require("../database");
 
 //Login routes.
 
@@ -51,37 +52,72 @@ router.post(
     console.log(err);
     if (!err.isEmpty()) {
       return res.status(400).json({ errors: err.array() });
+    } else {
+      console.log(req.body);
+      //Get user.
+      let user = {};
+      db.query(
+        "SELECT * FROM Users WHERE email = ? ",
+        [req.user.email],
+        (err, results) => {
+          console.log(results);
+          user = JSON.parse(JSON.stringify(results))[0];
+          // Create a profile for that user.
+          profile = {
+            user_id: user.user_id,
+            full_name: req.body.full_name,
+            address_one: req.body.address_one,
+            city: req.body.city,
+            state: req.body.state,
+            zip_code: req.body.zip_code,
+          };
+
+          if ("address_two" in req.body) {
+            profile["address_two"] = req.body.address_one;
+          }
+          db.query("INSERT INTO profiles SET ? ", profile, (err, results) => {
+            if (err) throw err;
+            console.log(results);
+            return res.sendStatus(200).json(profile);
+          });
+        }
+      );
     }
-
-    // Create a profile for that user.
-    profile = {
-      id: Date.now().toString(),
-      full_name: req.body.full_name,
-      address_one: req.body.address_one,
-      city: req.body.city,
-      state: req.body.state,
-      zipcode: req.body.zipcoe,
-    };
-
-    if ("address_two" in req.body) {
-      profile["address_two"] = req.body.address_one;
-    }
-
-    profiles.push(profile);
-    console.log("sucessful");
-    return res.send(200).json(profile);
   }
 );
 
 //Get profile
 router.get("/", authenticateToken, (req, res, next) => {
   console.log(req.user);
-  prof = profiles.filter((profile) => profile.email_fk == req.user.email);
-  console.log(prof);
-  if (prof.length == 0) {
-    return res.sendStatus(404);
-  }
-  return res.send(200).json(prof[0]);
+  //Get profile of the user
+  db.query(
+    "SELECT * FROM Users WHERE email = ? ",
+    [req.user.email],
+    (err, results) => {
+      // console.log(results);
+      user = JSON.parse(JSON.stringify(results))[0];
+      // Get profile based on user
+      // console.log(user);
+
+      db.query(
+        "SELECT * FROM profiles WHERE user_id = ? ",
+        [user.user_id],
+        (err, results) => {
+          if (err) {
+            return res.sendStatus(400);
+          } else {
+            rows = JSON.parse(JSON.stringify(results));
+            if (rows.length > 0) {
+              profile = rows[0];
+              return res.send(profile);
+            } else {
+              return res.sendStatus(400);
+            }
+          }
+        }
+      );
+    }
+  );
 });
 
 module.exports = router;

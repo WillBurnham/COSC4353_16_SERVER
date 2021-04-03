@@ -66,7 +66,9 @@ router.post(
             { email: req.body.email, password: hashedPassword },
             "shhhh"
           );
-          return res.status(200).json({ accessToken: accessToken });
+          return res
+            .status(200)
+            .json({ accessToken: accessToken, user_id: user.user_id });
         }
       }
     );
