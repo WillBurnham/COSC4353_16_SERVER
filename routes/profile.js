@@ -62,19 +62,8 @@ router.post("/", authenticateToken, (req, res, next) => {
           zip_code: req.body.zip_code,
         };
 
-<<<<<<< HEAD
         if ("address_two" in req.body) {
           profile["address_two"] = req.body.address_two;
-=======
-          if ("address_two" in req.body) {
-            profile["address_two"] = req.body.address_one;
-          }
-          db.query("INSERT INTO profiles SET ? ", profile, (err, results) => {
-            if (err) throw err;
-            console.log(results);
-            return res.send(profile);
-          });
->>>>>>> ed97670ec01f3511c9c7a5284fd6c8059b1d5739
         }
         db.query("INSERT INTO profiles SET ? ", profile, (err, results) => {
           if (err) throw err;
