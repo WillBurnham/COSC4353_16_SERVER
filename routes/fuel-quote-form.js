@@ -48,7 +48,7 @@ let profiles = [
     zipcode: "77024",
   },
 ];
-router.post("/", [authenticateToken], async (req, res, next) => {
+router.post("/", authenticateToken, async (req, res, next) => {
   //Get user based on email,
   db.query(
     "SELECT * FROM Users WHERE email = ? ",
@@ -97,16 +97,31 @@ router.post("/", [authenticateToken], async (req, res, next) => {
                 delivery_date: req.body.date,
                 total_amount: amount_due,
               };
-              //Insert quote into table.
+              //Get current address from profile table.
               db.query(
-                "INSERT INTO fuel_quotes SET ? ",
-                fuel_quote,
+                "SELECT * FROM profiles WHERE profiles.user_id = ?",
+                [user.user_id],
                 (err, results) => {
                   if (err) throw err;
-                  console.log(results);
-                  res.send(200);
+                  row = JSON.parse(JSON.stringify(results))[0];
+                  fuel_quote["address_one"] = row.address_one;
+                  fuel_quote["address_two"] = row.address_two;
+                  fuel_quote["city"] = row.city;
+                  fuel_quote["state"] = row.state;
+                  fuel_quote["zip_code"] = row.zip_code;
+
+                  db.query(
+                    "INSERT INTO fuel_quotes SET ? ",
+                    fuel_quote,
+                    (err, results) => {
+                      if (err) throw err;
+                      console.log(results);
+                      res.send(200);
+                    }
+                  );
                 }
               );
+              //Insert quote into table.
             }
           );
         }
@@ -122,31 +137,28 @@ router.get("/all_quotes", authenticateToken, (req, res, next) => {
     (err, results) => {
       user = JSON.parse(JSON.stringify(results))[0];
       // console.log("User: ", user);
+      //Get existing fuel_quotes.
       db.query(
-        "SELECT * FROM profiles WHERE user_id = ? ",
+        "SELECT * FROM fuel_quotes WHERE user_id = ?",
         [user.user_id],
         (err, results) => {
-          profile = JSON.parse(JSON.stringify(results))[0];
-          // console.log(profile);
-
-          //Get existing fuel_quotes.
-          db.query(
-            "SELECT * FROM fuel_quotes WHERE user_id = ?",
-            [user.user_id],
-            (err, results) => {
-              if (err) throw err;
-              // console.log("Existing quotes: ", results);
-              let all_quotes = JSON.parse(JSON.stringify(results));
-              all_quotes = all_quotes.map((quote) => {
-                return {
-                  ...quote,
-                  address: `${profile.address_one}, ${profile.address_two}, ${profile.city} ${profile.state} ${profile.zip_code}`,
-                };
-              });
-              console.log(all_quotes);
-              return res.send(all_quotes);
+          if (err) throw err;
+          // console.log("Existing quotes: ", results);
+          let all_quotes = JSON.parse(JSON.stringify(results));
+          all_quotes = all_quotes.map((quote) => {
+            let full_address = "";
+            if (quote.address_two) {
+              full_address = `${quote.address_one}, ${quote.address_two}, ${quote.city} ${quote.state} ${quote.zip_code}`;
+            } else {
+              full_address = `${quote.address_one}, ${quote.city} ${quote.state} ${quote.zip_code}`;
             }
-          );
+            return {
+              ...quote,
+              address: full_address,
+            };
+          });
+          console.log(all_quotes);
+          return res.send(all_quotes);
         }
       );
     }
