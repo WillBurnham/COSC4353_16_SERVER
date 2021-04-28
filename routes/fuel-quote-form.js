@@ -116,7 +116,7 @@ router.post("/", authenticateToken, async (req, res, next) => {
                     (err, results) => {
                       if (err) throw err;
                       console.log(results);
-                      res.send(200);
+                      res.send(fuel_quote);
                     }
                   );
                 }
