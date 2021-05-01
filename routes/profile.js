@@ -38,41 +38,36 @@ let users = [
 //Create a profile
 router.post("/", authenticateToken, (req, res, next) => {
   //validate on incoming data.
-  const err = validationResult(req);
-  console.log(err);
-  if (!err.isEmpty()) {
-    return res.status(400).json({ errors: err.array() });
-  } else {
-    console.log(req.body);
-    //Get user.
-    let user = {};
-    db.query(
-      "SELECT * FROM Users WHERE email = ? ",
-      [req.user.email],
-      (err, results) => {
-        console.log(results);
-        user = JSON.parse(JSON.stringify(results))[0];
-        // Create a profile for that user.
-        profile = {
-          user_id: user.user_id,
-          full_name: req.body.full_name,
-          address_one: req.body.address_one,
-          city: req.body.city,
-          state: req.body.state,
-          zip_code: req.body.zip_code,
-        };
 
-        if ("address_two" in req.body) {
-          profile["address_two"] = req.body.address_two;
-        }
-        db.query("INSERT INTO profiles SET ? ", profile, (err, results) => {
-          if (err) throw err;
-          console.log(results);
-          return res.status(200).json(profile);
-        });
+  console.log(req.body);
+  //Get user.
+  let user = {};
+  db.query(
+    "SELECT * FROM Users WHERE email = ? ",
+    [req.user.email],
+    (err, results) => {
+      console.log(results);
+      user = JSON.parse(JSON.stringify(results))[0];
+      // Create a profile for that user.
+      profile = {
+        user_id: user.user_id,
+        full_name: req.body.full_name,
+        address_one: req.body.address_one,
+        city: req.body.city,
+        state: req.body.state,
+        zip_code: req.body.zip_code,
+      };
+
+      if ("address_two" in req.body) {
+        profile["address_two"] = req.body.address_two;
       }
-    );
-  }
+      db.query("INSERT INTO profiles SET ? ", profile, (err, results) => {
+        if (err) throw err;
+        console.log(results);
+        return res.status(200).json(profile);
+      });
+    }
+  );
 });
 
 //Get profile
